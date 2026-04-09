@@ -2210,9 +2210,13 @@ class orddd_common {
 	    	foreach ( $results as $key => $value ) {
                 $shipping_methods = array();
                 $shipping_settings = get_option( $value->option_name );
+				if ( ! is_array( $shipping_settings ) ) {
+					continue;
+				}
                 if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'orddd_locations' ) {
 
-                    if( isset( $shipping_settings[ 'orddd_locations' ] ) && in_array( $location, $shipping_settings[ 'orddd_locations' ] ) ) {
+					$orddd_locations_lockout = isset( $shipping_settings['orddd_locations'] ) ? $shipping_settings['orddd_locations'] : null;
+					if ( is_array( $orddd_locations_lockout ) && in_array( $location, $orddd_locations_lockout, true ) ) {
                         $shipping_based_lockout = "Yes";
                         $shipping_settings_to_check[ $value->option_name ] = $shipping_settings;
                     }
@@ -2223,6 +2227,9 @@ class orddd_common {
 				foreach ( $results as $key => $value ) {
 					$shipping_methods = array();
 					$shipping_settings = get_option( $value->option_name );
+					if ( ! is_array( $shipping_settings ) ) {
+						continue;
+					}
 					if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'shipping_methods' ) {
 						if( has_filter( 'orddd_get_shipping_method' ) ) {
 							$shipping_methods_values = apply_filters( 'orddd_get_shipping_method', $shipping_settings, $_POST, $shipping_settings[ 'shipping_methods' ], $shipping_method );    
@@ -2230,7 +2237,8 @@ class orddd_common {
 							$shipping_method  = $shipping_methods_values[ 'shipping_method' ];
 						}
 	
-						if( in_array( $shipping_method, $shipping_settings[ 'shipping_methods' ] ) ) {
+						$shipping_methods_lockout = isset( $shipping_settings['shipping_methods'] ) ? $shipping_settings['shipping_methods'] : null;
+						if ( is_array( $shipping_methods_lockout ) && in_array( $shipping_method, $shipping_methods_lockout, true ) ) {
 							$shipping_based_lockout = "Yes";
 							$shipping_settings_to_check[ $value->option_name ] = $shipping_settings;
 						}
@@ -2243,9 +2251,14 @@ class orddd_common {
                     foreach ( $results as $key => $value ) {
                         $shipping_methods = array();
                         $shipping_settings = get_option( $value->option_name );
+						if ( ! is_array( $shipping_settings ) ) {
+							continue;
+						}
                         if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'product_categories' ) {
-                            if( in_array( $pvalue, $shipping_settings[ 'product_categories' ] ) ) {
-                                if( isset( $shipping_settings[ 'shipping_methods_for_categories' ] ) && ( in_array( $shipping_method, $shipping_settings[ 'shipping_methods_for_categories' ] ) || in_array( $shipping_class, $shipping_settings[ 'shipping_methods_for_categories' ] ) ) ) {
+							$product_categories_lockout = isset( $shipping_settings['product_categories'] ) ? $shipping_settings['product_categories'] : null;
+							if ( is_array( $product_categories_lockout ) && in_array( $pvalue, $product_categories_lockout, true ) ) {
+								$methods_for_cat_lockout = isset( $shipping_settings['shipping_methods_for_categories'] ) ? $shipping_settings['shipping_methods_for_categories'] : null;
+								if ( is_array( $methods_for_cat_lockout ) && ( in_array( $shipping_method, $methods_for_cat_lockout, true ) || in_array( $shipping_class, $methods_for_cat_lockout, true ) ) ) {
                                     $shipping_based_lockout = "Yes";
                                     $shipping_settings_to_check[ $value->option_name ] = $shipping_settings;
                                 }
@@ -2259,8 +2272,12 @@ class orddd_common {
                 foreach( $categories as $pkey => $pvalue ) {
                     foreach ( $results as $key => $value ) {
                         $shipping_settings = get_option( $value->option_name );
+						if ( ! is_array( $shipping_settings ) ) {
+							continue;
+						}
                         if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'product_categories' ) {
-                            if( in_array( $pvalue, $shipping_settings[ 'product_categories' ] ) ) {
+							$product_categories_lockout_b = isset( $shipping_settings['product_categories'] ) ? $shipping_settings['product_categories'] : null;
+							if ( is_array( $product_categories_lockout_b ) && in_array( $pvalue, $product_categories_lockout_b, true ) ) {
                                 if( !isset( $shipping_settings[ 'shipping_methods_for_categories' ] ) ) {
                                     $shipping_based_lockout = "Yes";
                                     $shipping_settings_to_check[ $value->option_name ] = $shipping_settings;
@@ -2275,8 +2292,12 @@ class orddd_common {
                 foreach( $shipping_classes as $skey => $svalue ) {
                     foreach ( $results as $key => $value ) {
                         $shipping_settings = get_option( $value->option_name );
+						if ( ! is_array( $shipping_settings ) ) {
+							continue;
+						}
                         if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'shipping_methods' ) {
-                            if( in_array( $svalue, $shipping_settings[ 'shipping_methods' ] ) ) {
+							$shipping_methods_lockout_s = isset( $shipping_settings['shipping_methods'] ) ? $shipping_settings['shipping_methods'] : null;
+							if ( is_array( $shipping_methods_lockout_s ) && in_array( $svalue, $shipping_methods_lockout_s, true ) ) {
                                 $shipping_based_lockout = "Yes";
                                 $shipping_settings_to_check[ $value->option_name ] = $shipping_settings;
                             }
@@ -9199,10 +9220,14 @@ class orddd_common {
 	 	if( $lpp_location != '' ) {
 	 		foreach ( $results as $key => $value ) {
 	            $shipping_methods = array();
-	            $shipping_settings = get_option( $value->option_name );	
+	            $shipping_settings = get_option( $value->option_name );
+				if ( ! is_array( $shipping_settings ) ) {
+					continue;
+				}
 	            if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && 
 	            	$shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'orddd_pickup_locations' ) {
-					if( in_array( $lpp_location, $shipping_settings[ 'orddd_pickup_locations' ] ) ) {
+					$orddd_pickup_locations_list = isset( $shipping_settings['orddd_pickup_locations'] ) ? $shipping_settings['orddd_pickup_locations'] : null;
+					if ( is_array( $orddd_pickup_locations_list ) && in_array( $lpp_location, $orddd_pickup_locations_list, true ) ) {
 						$shipping_settings_exists = 'Yes';
 						$custom_settings[] = $shipping_settings;
 	                }
@@ -9212,10 +9237,14 @@ class orddd_common {
 	 	if( 'No' == $shipping_settings_exists ) {
 	        foreach ( $results as $key => $value ) {
 	            $shipping_methods = array();
-	            $shipping_settings = get_option( $value->option_name );	
+	            $shipping_settings = get_option( $value->option_name );
+				if ( ! is_array( $shipping_settings ) ) {
+					continue;
+				}
 	            if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && 
 	            	$shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'orddd_locations' ) {
-					if( in_array( $location, $shipping_settings[ 'orddd_locations' ] ) ) {
+					$orddd_locations_list = isset( $shipping_settings['orddd_locations'] ) ? $shipping_settings['orddd_locations'] : null;
+					if ( is_array( $orddd_locations_list ) && in_array( $location, $orddd_locations_list, true ) ) {
 						$shipping_settings_exists = 'Yes';
 						$custom_settings[] = $shipping_settings;
 	                }
@@ -9227,6 +9256,9 @@ class orddd_common {
 	        foreach ( $results as $key => $value ) {
 	            $shipping_methods = array();
 	            $shipping_settings = get_option( $value->option_name );
+				if ( ! is_array( $shipping_settings ) ) {
+					continue;
+				}
 	            if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'shipping_methods' ) {
 	            	if( has_filter( 'orddd_get_shipping_method' ) ) {
 		                $shipping_methods_values = apply_filters( 'orddd_get_shipping_method', $custom_settings, $_POST, $shipping_settings[ 'shipping_methods' ], $shipping_method );    
@@ -9234,7 +9266,8 @@ class orddd_common {
 						$shipping_method  = $shipping_methods_values[ 'shipping_method' ];
 		            }
 
-					if( isset( $shipping_settings[ 'shipping_methods' ] ) && in_array( $shipping_method, $shipping_settings[ 'shipping_methods' ] ) ) {
+					$shipping_methods_list = isset( $shipping_settings['shipping_methods'] ) ? $shipping_settings['shipping_methods'] : null;
+					if ( is_array( $shipping_methods_list ) && in_array( $shipping_method, $shipping_methods_list, true ) ) {
 						$shipping_settings_exists = 'Yes';
 						$custom_settings[] = $shipping_settings;
 	                }
@@ -9247,15 +9280,20 @@ class orddd_common {
         		foreach ( $results as $key => $value ) {
 		            $shipping_methods = array();
 		            $shipping_settings = get_option( $value->option_name );
+					if ( ! is_array( $shipping_settings ) ) {
+						continue;
+					}
 		            if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'product_categories' ) {
-						if( isset( $shipping_settings[ 'product_categories' ] ) && in_array( $pvalue, $shipping_settings[ 'product_categories' ] ) ) {
-							if( isset( $shipping_settings[ 'shipping_methods_for_categories' ] ) && ( in_array( $shipping_method, $shipping_settings[ 'shipping_methods_for_categories' ] ) ) ) {
+						$product_categories_list = isset( $shipping_settings['product_categories'] ) ? $shipping_settings['product_categories'] : null;
+						if ( is_array( $product_categories_list ) && in_array( $pvalue, $product_categories_list, true ) ) {
+							$methods_for_cat = isset( $shipping_settings['shipping_methods_for_categories'] ) ? $shipping_settings['shipping_methods_for_categories'] : null;
+							if ( is_array( $methods_for_cat ) && in_array( $shipping_method, $methods_for_cat, true ) ) {
 								$shipping_settings_exists = 'Yes';
 								$shipping_settings[ 'is_combination_enabled' ] = 'yes';
 								$custom_settings[] = $shipping_settings;
-							} else if( isset( $shipping_settings[ 'shipping_methods_for_categories' ] ) ) {
+							} else if ( is_array( $methods_for_cat ) ) {
 								foreach( $shipping_classes as $skey => $svalue ) {
-									if( in_array( $svalue, $shipping_settings[ 'shipping_methods_for_categories' ] ) ) {
+									if( in_array( $svalue, $methods_for_cat, true ) ) {
 										$shipping_settings_exists = 'Yes';
 										$shipping_settings[ 'is_combination_enabled' ] = 'yes';
 										$custom_settings[] = $shipping_settings;
@@ -9272,8 +9310,12 @@ class orddd_common {
         	foreach( $product_categories as $pkey => $pvalue ) {
         		foreach ( $results as $key => $value ) {
 		            $shipping_settings = get_option( $value->option_name );
+					if ( ! is_array( $shipping_settings ) ) {
+						continue;
+					}
 		            if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'product_categories' ) {
-						if( isset( $shipping_settings[ 'product_categories' ] ) && in_array( $pvalue, $shipping_settings[ 'product_categories' ] ) ) {
+						$product_categories_list_b = isset( $shipping_settings['product_categories'] ) ? $shipping_settings['product_categories'] : null;
+						if ( is_array( $product_categories_list_b ) && in_array( $pvalue, $product_categories_list_b, true ) ) {
 							if( !isset( $shipping_settings[ 'shipping_methods_for_categories' ] ) ) {
 								$shipping_settings_exists = 'Yes';
 								$shipping_settings[ 'is_combination_enabled' ] = 'yes';
@@ -9290,8 +9332,12 @@ class orddd_common {
         	foreach( $shipping_classes as $skey => $svalue ) {
         		foreach ( $results as $key => $value ) {
 		            $shipping_settings = get_option( $value->option_name );
+					if ( ! is_array( $shipping_settings ) ) {
+						continue;
+					}
 		            if( isset( $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] ) && $shipping_settings[ 'delivery_settings_based_on' ][ 0 ] == 'shipping_methods' ) {
-						if( isset( $shipping_settings[ 'shipping_methods' ] ) && in_array( $svalue, $shipping_settings[ 'shipping_methods' ] ) ) {
+						$shipping_methods_list_s = isset( $shipping_settings['shipping_methods'] ) ? $shipping_settings['shipping_methods'] : null;
+						if ( is_array( $shipping_methods_list_s ) && in_array( $svalue, $shipping_methods_list_s, true ) ) {
 							$shipping_settings_exists = 'Yes';
 							$shipping_settings[ 'is_combination_enabled' ] = 'yes';
 							$custom_settings[] = $shipping_settings;
